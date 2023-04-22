@@ -1,0 +1,16 @@
+name: "GitHub to Qiita"
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  qiita:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Publish to Qiita"
+        uses: noraworld/github-to-qiita@v1.0.1
+        with:
+          dir: "articles"
+          qiita_access_token: d3565315000485b27c7787c3e34b67c2845ac184
+          strict: false
