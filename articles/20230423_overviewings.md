@@ -37,7 +37,7 @@ Hirotoshi Uchidaです。<br>
 <br>
 ##ソーシャルメディアURL
 * [hearthis.at](https://hearthis.at/hirotoshi-uchida)
-* [hearthis.at](https://hearthis.at/hirotoshi-uchida-2nd)
+* [hearthis.at](https://hearthis.at/hirotoshi-uchida-2nd)<br>
 ##ポートフォリオ
 * [Microtone VR](https://utvirtual.tech/portfolio-2/microtone-vr)
 * [IanniXを用いた3次元図形譜と聴覚障がい者のための音の可視化](https://www.ttt123t.com/html/toyo_2010/kashika/www2020/hp_web/html/a16.html)
