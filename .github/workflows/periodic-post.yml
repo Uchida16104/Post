@@ -53,9 +53,9 @@ jobs:
       - name: Start to set
         run: echo -n "---" >> ${{ env.CURRENT_DATETIME }}.md
       - name: Set title
-        run: echo -n "title: "定期投稿" " >> ${{ env.CURRENT_DATETIME }}.md
+        run: echo -n "title: 定期投稿" >> ${{ env.CURRENT_DATETIME }}.md
       - name: Set topics
-        run: echo -n "topics: ["GitHubActions", "Qiita", "Zenn", "YAML","bot"] " >> ${{ env.CURRENT_DATETIME }}.md
+        run: echo -n "topics: [GitHubActions, Qiita, Zenn, YAML,bot]" >> ${{ env.CURRENT_DATETIME }}.md
       - name: Set whther it can publish
         run: echo -n "published: true" >> ${{ env.CURRENT_DATETIME }}.md
       - name: Finish to set
