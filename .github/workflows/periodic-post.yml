@@ -1,0 +1,72 @@
+name: periodic-post
+
+on:
+  push:
+    branches: [ main ]
+  schedule:
+    - cron: "*/5 * * * *"
+    
+jobs:
+  periodic-post:
+    runs-on: ubuntu-latest
+    permissions:
+     actions: write
+     checks: write
+     contents: write
+     deployments: write
+     issues: write
+     packages: write
+     pull-requests: write
+     repository-projects: write
+     security-events: write
+     statuses: write
+    steps:
+      - uses: actions/checkout@v3
+      - name: Move directory
+        run: cd /home/runner/work/Post/Post/articles
+      - name: Update apt Package lists
+        run: sudo apt update -y
+      - name: Upgrade apt version
+        run: sudo apt upgrade -y
+      - name: Pre-install LFS
+        run: sudo apt-get install git-lfs
+      - name: Install LFS
+        run: git lfs install
+      - name: Confirm LFS version
+        run: git lfs --version
+      - name: Enable LFS
+        uses: actions/checkout@v3
+        with:
+          lfs: true
+          clean: false
+      - name: Register user email
+        run: git config --global user.email "uho02741358@gmail.com"
+      - name: Register user name
+        run: git config --global user.name "Uchida16104"
+      - name: Initialize Git
+        run: git init
+      - name: Set current datetime as env variable
+        uses: actions/checkout@v2
+        env:
+          TZ: 'Asia/Tokyo'
+        run: echo "CURRENT_DATETIME=$(date +'%Y%m%d_%H%M%S')" >> $GITHUB_ENV
+      - name: Start to set
+        run: echo -n "---" >> ${{ env.CURRENT_DATETIME }}.md
+      - name: Set title
+        run: echo -n "title: "定期投稿" " >> ${{ env.CURRENT_DATETIME }}.md
+      - name: Set topics
+        run: echo -n "topics: ["GitHubActions", "Qiita", "Zenn", "YAML","bot"] " >> ${{ env.CURRENT_DATETIME }}.md
+      - name: Set whther it can publish
+        run: echo -n "published: true" >> ${{ env.CURRENT_DATETIME }}.md
+      - name: Finish to set
+        run: echo -n "---" >> ${{ env.CURRENT_DATETIME }}.md
+      - name: Write 1st comment
+        run: echo -n "Hello world!" >> ${{ env.CURRENT_DATETIME }}.md
+      - name: Write 2nd comment
+        run: echo -n "This is a periodic post." >> ${{ env.CURRENT_DATETIME }}.md
+      - name: "Publish to Qiita"
+        uses: noraworld/github-to-qiita@v1.0.1
+        with:
+          dir: "articles"
+          qiita_access_token: d3565315000485b27c7787c3e34b67c2845ac184
+          strict: false
