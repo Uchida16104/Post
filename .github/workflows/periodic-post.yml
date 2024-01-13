@@ -49,26 +49,28 @@ jobs:
         uses: actions/checkout@v2
         env:
           TZ: 'Asia/Tokyo'
+      - name: Get current day
+        run: DATE=`date '+%Y%m%d'`
       - name: Start to set
-        run: echo "---" > ${*}.md
+        run: echo "---" > $DATE.md
       - name: Define title
-        run: echo -n "title:" >> ${*}.md
+        run: echo -n "title:" >> $DATE.md
       - name: Set title
-        run: echo \ \"periodic post\" >> ${*}.md
+        run: echo \ \"periodic post\" >> $DATE.md
       - name: Define topics
-        run: echo -n "topics:" >> ${*}.md
+        run: echo -n "topics:" >> $DATE.md
       - name: Set topics
-        run: echo \ "[\"GitHubActions\",\"Qiita\",\"Zenn\",\"YAML\",\"bot\"]" >> ${*}.md
+        run: echo \ "[\"GitHubActions\",\"Qiita\",\"Zenn\",\"YAML\",\"bot\"]" >> $DATE.md
       - name: Define whether it can publish
-        run: echo -n "published:" >> ${*}.md
+        run: echo -n "published:" >> $DATE.md
       - name: Set whether it can publish
         run: echo \ "true" >> ${*}.md
       - name: Finish to set
-        run: echo "---" >> ${*}.md
+        run: echo "---" >> $DATE.md
       - name: Write 1st comment
-        run: echo "Hello world!" >> ${*}.md
+        run: echo "Hello world!" >> $DATE.md
       - name: Write 2nd comment
-        run: echo "This is a periodic post." >> ${*}.md
+        run: echo "This is a periodic post." >> $DATE.md
       - name: Register files
         run: git add .
       - name: Commit files
