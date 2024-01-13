@@ -22,6 +22,8 @@ jobs:
      statuses: write
     steps:
       - uses: actions/checkout@v3
+      - name: Know current location
+        run: pwd
       - name: Update apt Package lists
         run: sudo apt update -y
       - name: Upgrade apt version
