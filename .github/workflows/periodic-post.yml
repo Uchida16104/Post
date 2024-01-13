@@ -52,25 +52,25 @@ jobs:
       - name: Get current day
         run: DATE=`date '+%Y%m%d'`
       - name: Start to set
-        run: echo "---" > ${DATE}.md
+        run: echo "---" > "${DATE}.md"
       - name: Define title
-        run: echo -n "title:" >> ${DATE}.md
+        run: echo -n "title:" >> "${DATE}.md"
       - name: Set title
-        run: echo \ \"periodic post\" >> ${DATE}.md
+        run: echo \ \"periodic post\" >> "${DATE}.md"
       - name: Define topics
-        run: echo -n "topics:" >> ${DATE}.md
+        run: echo -n "topics:" >> "${DATE}.md"
       - name: Set topics
-        run: echo \ "[\"GitHubActions\",\"Qiita\",\"Zenn\",\"YAML\",\"bot\"]" >> ${DATE}.md
+        run: echo \ "[\"GitHubActions\",\"Qiita\",\"Zenn\",\"YAML\",\"bot\"]" >> "${DATE}.md"
       - name: Define whether it can publish
-        run: echo -n "published:" >> ${DATE}.md
+        run: echo -n "published:" >> "${DATE}.md"
       - name: Set whether it can publish
-        run: echo \ "true" >> ${DATE}.md
+        run: echo \ "true" >> "${DATE}.md"
       - name: Finish to set
-        run: echo "---" >> ${DATE}.md
+        run: echo "---" >> "${DATE}.md"
       - name: Write 1st comment
-        run: echo "Hello world!" >> ${DATE}.md
+        run: echo "Hello world!" >> "${DATE}.md"
       - name: Write 2nd comment
-        run: echo "This is a periodic post." >> ${DATE}.md
+        run: echo "This is a periodic post." >> "${DATE}.md"
       - name: Register files
         run: git add .
       - name: Commit files
