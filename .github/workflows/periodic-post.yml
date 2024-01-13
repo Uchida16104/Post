@@ -50,7 +50,7 @@ jobs:
         env:
           TZ: 'Asia/Tokyo'
       - name: Start to set
-        run: echo "---" >> ${*}.md
+        run: echo "---" > ${*}.md
       - name: Set title
         run: echo "title:\ \"periodic post\"" >> ${*}.md
       - name: Set topics
