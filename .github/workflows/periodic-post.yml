@@ -52,7 +52,7 @@ jobs:
       - name: Get current day
         run: DATE=`date '+%Y%m%d'`
       - name: Start to set
-        run: echo "---" >> "${DATE}.md"
+        run: echo "---" > "${DATE}.md"
       - name: Define title
         run: echo -n "title:" >> "${DATE}.md"
       - name: Set title
