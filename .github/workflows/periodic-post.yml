@@ -56,7 +56,7 @@ jobs:
       - name: Set title
         run: echo \ \"periodic post\" >> ${*}.md
       - name: Define topics
-        run: echo -n "topics:"
+        run: echo -n "topics:" >> ${*}.md
       - name: Set topics
         run: echo \ "[\"GitHubActions\",\"Qiita\",\"Zenn\",\"YAML\",\"bot\"]" >> ${*}.md
       - name: Define whether it can publish
