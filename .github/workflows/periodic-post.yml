@@ -52,7 +52,7 @@ jobs:
       - name: Set file name
         run: file=`mktemp XXXXXXXXXXXXXXXX.md`
       - name: Confirm file name
-        run: echo $file
+        run: echo "$file"
       - name: Start to set
         run: echo -n "---" >> "$file"
       - name: Set title
