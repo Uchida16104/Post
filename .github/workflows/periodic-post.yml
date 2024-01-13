@@ -52,9 +52,9 @@ jobs:
       - name: Start to set
         run: echo "---" >> ${*}.md
       - name: Set title
-        run: echo "title:　\"periodic post\"" >> ${*}.md
+        run: echo "title: \"periodic post\"" >> ${*}.md
       - name: Set topics
-        run: echo "topics:　[\"GitHubActions\", \"Qiita\", \"Zenn\", \"YAML\",　\"bot\"]" >> ${*}.md
+        run: echo "topics: [\"GitHubActions\", \"Qiita\", \"Zenn\", \"YAML\",　\"bot\"]" >> ${*}.md
       - name: Set whther it can publish
         run: echo "published:　true" >> ${*}.md
       - name: Finish to set
