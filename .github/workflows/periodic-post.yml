@@ -55,11 +55,11 @@ jobs:
       - name: Start to set
         run: echo -n "---" >> $file
       - name: Set title
-        run: echo -n "title: periodic post" >> $file
+        run: echo -n "title:periodic post" >> $file
       - name: Set topics
-        run: echo -n "topics: [GitHubActions, Qiita, Zenn, YAML,bot]" >> $file
+        run: echo -n "topics:[GitHubActions, Qiita, Zenn, YAML,bot]" >> $file
       - name: Set whther it can publish
-        run: echo -n "published: true" >> $file
+        run: echo -n "published:true" >> $file
       - name: Finish to set
         run: echo -n "---" >> $file
       - name: Write 1st comment
