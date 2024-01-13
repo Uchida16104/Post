@@ -54,13 +54,15 @@ jobs:
       - name: Define title
         run: echo "title:" >> ${*}.md
       - name: Set title
-        run: echo -n \"periodic post\"" >> ${*}.md
+        run: echo -n \ \"periodic post\" >> ${*}.md
       - name: Define topics
         run: echo "topics:"
       - name: Set topics
-        run: echo -n "[\"GitHubActions\",\"Qiita\",\"Zenn\",\"YAML\",\"bot\"]" >> ${*}.md
-      - name: Set whther it can publish
-        run: echo "published:true" >> ${*}.md
+        run: echo -n \ "[\"GitHubActions\",\"Qiita\",\"Zenn\",\"YAML\",\"bot\"]" >> ${*}.md
+      - name: Define whether it can publish
+        run: echo "published:" >> ${*}.md
+      - name: Set whether it can publish
+        run: echo \ "true" >> ${*}.md
       - name: Finish to set
         run: echo "---" >> ${*}.md
       - name: Write 1st comment
