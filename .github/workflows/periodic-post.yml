@@ -51,10 +51,14 @@ jobs:
           TZ: 'Asia/Tokyo'
       - name: Start to set
         run: echo "---" > ${*}.md
+      - name: Define title
+        run: echo "title:" >> ${*}.md
       - name: Set title
-        run: echo "title:\"periodic post\"" >> ${*}.md
+        run: echo -n \"periodic post\"" >> ${*}.md
+      - name: Define topics
+        run: echo "topics:"
       - name: Set topics
-        run: echo "topics:[\"GitHubActions\",\"Qiita\",\"Zenn\",\"YAML\",\"bot\"]" >> ${*}.md
+        run: echo -n "[\"GitHubActions\",\"Qiita\",\"Zenn\",\"YAML\",\"bot\"]" >> ${*}.md
       - name: Set whther it can publish
         run: echo "published:true" >> ${*}.md
       - name: Finish to set
