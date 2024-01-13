@@ -49,8 +49,9 @@ jobs:
         uses: actions/checkout@v2
         env:
           TZ: 'Asia/Tokyo'
+      - name: Set date
         run: current=`date '+%Y%m%d_'`
-      - name: Define file name
+      - name: Set file name
         run: file=`mktemp "$current"XXXXXXXXXXXXXXXX.md`
       - name: Start to set
         run: echo -n "---" >> $file
