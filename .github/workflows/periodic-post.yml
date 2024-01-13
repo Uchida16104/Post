@@ -22,8 +22,6 @@ jobs:
      statuses: write
     steps:
       - uses: actions/checkout@v3
-      - name: Move directory
-        run: cd articles
       - name: Update apt Package lists
         run: sudo apt update -y
       - name: Upgrade apt version
@@ -52,21 +50,23 @@ jobs:
       - name: Set file name
         run: mktemp XXXXXXXXXXXXXXXX.md
       - name: Start to set
-        run: echo -n "---" >> ${*}.md
+        run: echo "---" >> ${*}.md
       - name: Set title
-        run: echo -n "title:periodic post" >> ${*}.md
+        run: echo "title:periodic post" >> ${*}.md
       - name: Set topics
-        run: echo -n "topics:[GitHubActions, Qiita, Zenn, YAML,bot]" >> ${*}.md
+        run: echo "topics:[GitHubActions, Qiita, Zenn, YAML,bot]" >> ${*}.md
       - name: Set whther it can publish
-        run: echo -n "published:true" >> ${*}.md
+        run: echo "published:true" >> ${*}.md
       - name: Finish to set
-        run: echo -n "---" >> ${*}.md
+        run: echo "---" >> ${*}.md
       - name: Write 1st comment
-        run: echo -n "Hello world!" >> ${*}.md
+        run: echo "Hello world!" >> ${*}.md
       - name: Write 2nd comment
-        run: echo -n "This is a periodic post." >> ${*}.md
+        run: echo "This is a periodic post." >> ${*}.md
       - name: Register files
         run: git add .
+      - name: Move directory
+        run: cd articles
       - name: Commit files
         run: git commit -m "Upload Zend framework 3 skeleton" -m "Use GitHub web GUI"
       - name: Update files
