@@ -50,7 +50,7 @@ jobs:
         env:
           TZ: 'Asia/Tokyo'
       - name: Set file name
-        run: mktemp XXXXXXXX >> "$file"
+        run: file=`mktemp XXXXXXXX.md`
       - name: Confirm file name
         run: echo $file
       - name: Start to set
