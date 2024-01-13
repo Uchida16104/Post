@@ -22,8 +22,8 @@ jobs:
      statuses: write
     steps:
       - uses: actions/checkout@v3
-      - name: Know current location
-        run: pwd
+      - name: Move directory
+        run: cd articles
       - name: Update apt Package lists
         run: sudo apt update -y
       - name: Upgrade apt version
@@ -65,6 +65,14 @@ jobs:
         run: echo -n "Hello world!" >> ${*}.md
       - name: Write 2nd comment
         run: echo -n "This is a periodic post." >> ${*}.md
+      - name: Register files
+        run: git add .
+      - name: Commit files
+        run: git commit -m "Upload Zend framework 3 skeleton" -m "Use GitHub web GUI"
+      - name: Update files
+        uses: stefanzweifel/git-auto-commit-action@v4
+      - name: Push files
+        run: git push --force-with-lease origin main
       - name: "Publish to Qiita"
         uses: noraworld/github-to-qiita@v1.0.1
         with:
