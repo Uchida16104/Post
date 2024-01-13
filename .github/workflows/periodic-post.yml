@@ -50,9 +50,9 @@ jobs:
         env:
           TZ: 'Asia/Tokyo'
       - name: Set file name
-        run: mktemp XXXXXXXX
+        run: mktemp XXXXXXXX >> "$file"
       - name: Confirm file name
-        run: echo $file >> "$GITHUB_SUMMARY"
+        run: echo $file
       - name: Start to set
         run: echo -n "---" >> "$file"
       - name: Set title
