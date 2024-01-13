@@ -54,17 +54,17 @@ jobs:
       - name: Start to set
         run: echo -n "---" >> ${*}.md
       - name: Set title
-        run: echo -n "title:periodic post" >> *.md
+        run: echo -n "title:periodic post" >> ${*}.md
       - name: Set topics
-        run: echo -n "topics:[GitHubActions, Qiita, Zenn, YAML,bot]" >> *.md
+        run: echo -n "topics:[GitHubActions, Qiita, Zenn, YAML,bot]" >> ${*}.md
       - name: Set whther it can publish
-        run: echo -n "published:true" >> *.md
+        run: echo -n "published:true" >> ${*}.md
       - name: Finish to set
-        run: echo -n "---" >> *.md
+        run: echo -n "---" >> ${*}.md
       - name: Write 1st comment
-        run: echo -n "Hello world!" >> *.md
+        run: echo -n "Hello world!" >> ${*}.md
       - name: Write 2nd comment
-        run: echo -n "This is a periodic post." >> *.md
+        run: echo -n "This is a periodic post." >> ${*}.md
       - name: "Publish to Qiita"
         uses: noraworld/github-to-qiita@v1.0.1
         with:
