@@ -41,14 +41,14 @@ jobs:
         run: git config --global user.email "uho02741358@gmail.com"
       - name: Register user name
         run: git config --global user.name "Uchida16104"
+      - name: Move directory
+        run: cd ./articles
       - name: Initialize Git
         run: git init
       - name: Set current datetime as env variable
         uses: actions/checkout@v2
         env:
           TZ: 'Asia/Tokyo'
-      - name: Set file name
-        run: mktemp XXXXXXXXXXXXXXXX.md
       - name: Start to set
         run: echo "---" >> ${*}.md
       - name: Set title
@@ -65,8 +65,6 @@ jobs:
         run: echo "This is a periodic post." >> ${*}.md
       - name: Register files
         run: git add .
-      - name: Move directory
-        run: cd articles
       - name: Commit files
         run: git commit -m "Upload Zend framework 3 skeleton" -m "Use GitHub web GUI"
       - name: Update files
