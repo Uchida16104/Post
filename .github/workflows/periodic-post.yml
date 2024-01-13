@@ -52,7 +52,7 @@ jobs:
       - name: Set file name
         run: mktemp XXXXXXXXXXXXXXXX.md
       - name: Start to set
-        run: echo -n "---" >> *.md
+        run: echo -n "---" >> ${*}.md
       - name: Set title
         run: echo -n "title:periodic post" >> *.md
       - name: Set topics
