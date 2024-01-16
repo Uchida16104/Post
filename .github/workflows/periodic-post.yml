@@ -71,10 +71,18 @@ jobs:
         run: echo "Hello world!" >> "${DATE}.md"
       - name: Write 2nd comment
         run: echo "This is a periodic post." >> "${DATE}.md"
+      - name: Move files
+        run: mv "${DATE}.md" articles
+      - name: Move directory
+        run: cd articles
       - name: Register files
         run: git add .
       - name: Commit files
         run: git commit -m "Upload Zend framework 3 skeleton" -m "Use GitHub web GUI"
+      - name: Fetch files
+        run: git fetch
+      - name: Merge files
+        run: git merge
       - name: Update files
         uses: stefanzweifel/git-auto-commit-action@v4
       - name: Push files
