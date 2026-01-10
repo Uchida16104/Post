@@ -3,7 +3,7 @@ name: Generate posts.json
 on:
   push:
     paths:
-      - "articles/*.md"
+      - "articles/**.md"
 
 jobs:
   build:
@@ -12,41 +12,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Generate posts.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm install gray-matter
+
+      - run: node scripts/generate-posts.js
+
+      - name: Commit if changed
         run: |
-          node << 'EOF'
-          const fs = require('fs');
-          const path = 'articles';
-          const files = fs.readdirSync(path).filter(f => f.endsWith('.md'));
-
-          const posts = files.map(file => {
-            const content = fs.readFileSync(`${path}/${file}`, 'utf8');
-            const title =
-              content.match(/^#\s+(.+)/m)?.[1] ?? file.replace('.md', '');
-
-            const dateMatch = file.match(/^(\d{4})(\d{2})(\d{2})_/);
-            const date = dateMatch
-              ? `${dateMatch[1]}-${dateMatch[2]}-${dateMatch[3]}`
-              : null;
-
-            return {
-              slug: file.replace('.md', ''),
-              title,
-              date,
-              url: `https://raw.githubusercontent.com/Uchida16104/Post/main/articles/${file}`
-            };
-          });
-
-          fs.writeFileSync(
-            'posts.json',
-            JSON.stringify(posts, null, 2)
-          );
-          EOF
-
-      - name: Commit posts.json
-        run: |
+          if git diff --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add posts.json
-          git commit -m "Auto-generate posts.json" || exit 0
+          git commit -m "chore: auto-generate posts.json"
           git push
