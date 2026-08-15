@@ -1,16 +1,47 @@
-name: "GitHub to Qiita"
+name: Publish to Qiita
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+    paths:
+      - "articles/**/*.md"
+
+permissions:
+  contents: read
 
 jobs:
   qiita:
     runs-on: ubuntu-latest
+
     steps:
-      - name: "Publish to Qiita"
-        uses: noraworld/github-to-qiita@v1.0.1
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          dir: "articles"
-          qiita_access_token: d3565315000485b27c7787c3e34b67c2845ac184
-          strict: false
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install gray-matter
+
+      - name: Find latest article
+        id: article
+        shell: bash
+        run: |
+          ARTICLE=$(git diff-tree --no-commit-id --name-only -r "$GITHUB_SHA" \
+            | grep '^articles/.*\.md$' \
+            | tail -n 1)
+
+          if [ -z "$ARTICLE" ]; then
+            echo "No article found."
+            exit 1
+          fi
+
+          echo "path=$ARTICLE" >> "$GITHUB_OUTPUT"
+
+      - name: Publish to Qiita
+        run: node scripts/publish-qiita.js "${{ steps.article.outputs.path }}"
+        env:
+          QIITA_TOKEN: ${{ secrets.QIITA_TOKEN }}
