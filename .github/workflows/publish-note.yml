@@ -18,7 +18,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -28,43 +28,52 @@ jobs:
       - name: Install dependencies
         run: npm install gray-matter
 
-      - name: Find latest article
-        id: article
+      - name: Find changed articles
+        id: articles
         shell: bash
         run: |
-          set -e
+          set -euo pipefail
 
-          echo "GITHUB_SHA=$GITHUB_SHA"
-          echo "Changed files:"
+          echo "Before: ${{ github.event.before }}"
+          echo "Current: ${{ github.sha }}"
 
-          git diff-tree \
-            --no-commit-id \
-            --name-only \
-            -r \
-            "$GITHUB_SHA^" \
-            "$GITHUB_SHA" || true
+          if [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
+            echo "Initial push detected."
 
-          ARTICLE=$(
-            git diff-tree \
-              --no-commit-id \
+            git ls-files 'articles/*.md' > changed_articles.txt
+          else
+            git diff \
               --name-only \
-              -r \
-              "$GITHUB_SHA^" \
-              "$GITHUB_SHA" \
-              | grep -E '^articles/.*\.md$' \
-              | tail -n 1 \
-              || true
-          )
+              "${{ github.event.before }}" \
+              "${{ github.sha }}" \
+              -- 'articles/**/*.md' > changed_articles.txt
+          fi
 
-          if [ -z "$ARTICLE" ]; then
+          echo "Changed article files:"
+          cat changed_articles.txt || true
+
+          if [ ! -s changed_articles.txt ]; then
             echo "No article found."
             exit 1
           fi
 
-          echo "Article: $ARTICLE"
-          echo "path=$ARTICLE" >> "$GITHUB_OUTPUT"
+          echo "count=$(wc -l < changed_articles.txt)" >> "$GITHUB_OUTPUT"
 
-      - name: Publish draft to note
-        run: node scripts/publish-note.js "${{ steps.article.outputs.path }}"
+      - name: Publish articles to note
+        shell: bash
         env:
           NOTE_SESSION_V5: ${{ secrets.NOTE_SESSION_V5 }}
+        run: |
+          set -euo pipefail
+
+          while IFS= read -r article; do
+            if [ -z "$article" ]; then
+              continue
+            fi
+
+            echo "========================================"
+            echo "Publishing: $article"
+            echo "========================================"
+
+            node scripts/publish-note.js "$article"
+          done < changed_articles.txt
