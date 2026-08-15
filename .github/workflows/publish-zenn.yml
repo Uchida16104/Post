@@ -1,0 +1,49 @@
+name: Publish to Zenn
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "articles/**/*.md"
+
+permissions:
+  contents: read
+
+jobs:
+  zenn:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install gray-matter
+
+      - name: Find latest article
+        id: article
+        shell: bash
+        run: |
+          ARTICLE=$(git diff-tree --no-commit-id --name-only -r "$GITHUB_SHA" \
+            | grep '^articles/.*\.md$' \
+            | tail -n 1)
+
+          if [ -z "$ARTICLE" ]; then
+            echo "No article found."
+            exit 1
+          fi
+
+          echo "path=$ARTICLE" >> "$GITHUB_OUTPUT"
+
+      - name: Validate Zenn article
+        run: node scripts/publish-zenn.js "${{ steps.article.outputs.path }}"
+
+      - name: Zenn deployment information
+        run: |
+          echo "The article is deployed to Zenn through the connected GitHub repository."
