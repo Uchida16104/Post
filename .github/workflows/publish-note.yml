@@ -17,6 +17,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -30,15 +32,36 @@ jobs:
         id: article
         shell: bash
         run: |
-          ARTICLE=$(git diff-tree --no-commit-id --name-only -r "$GITHUB_SHA" \
-            | grep '^articles/.*\.md$' \
-            | tail -n 1)
+          set -e
+
+          echo "GITHUB_SHA=$GITHUB_SHA"
+          echo "Changed files:"
+
+          git diff-tree \
+            --no-commit-id \
+            --name-only \
+            -r \
+            "$GITHUB_SHA^" \
+            "$GITHUB_SHA" || true
+
+          ARTICLE=$(
+            git diff-tree \
+              --no-commit-id \
+              --name-only \
+              -r \
+              "$GITHUB_SHA^" \
+              "$GITHUB_SHA" \
+              | grep -E '^articles/.*\.md$' \
+              | tail -n 1 \
+              || true
+          )
 
           if [ -z "$ARTICLE" ]; then
             echo "No article found."
             exit 1
           fi
 
+          echo "Article: $ARTICLE"
           echo "path=$ARTICLE" >> "$GITHUB_OUTPUT"
 
       - name: Publish draft to note
