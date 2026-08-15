@@ -40,13 +40,19 @@ jobs:
           if [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
             echo "Initial push detected."
 
-            git ls-files 'articles/*.md' > changed_articles.txt
+            git ls-files \
+              | grep -E '^articles/.*\.md$' \
+              > changed_articles.txt \
+              || true
           else
             git diff \
               --name-only \
+              --diff-filter=AM \
               "${{ github.event.before }}" \
               "${{ github.sha }}" \
-              -- 'articles/**/*.md' > changed_articles.txt
+              | grep -E '^articles/.*\.md$' \
+              > changed_articles.txt \
+              || true
           fi
 
           echo "Changed article files:"
@@ -76,4 +82,5 @@ jobs:
             echo "========================================"
 
             node scripts/publish-note.js "$article"
+
           done < changed_articles.txt
