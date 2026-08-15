@@ -34,10 +34,13 @@ jobs:
         run: |
           set -euo pipefail
 
-          echo "Before: ${{ github.event.before }}"
-          echo "Current: ${{ github.sha }}"
+          BEFORE="${{ github.event.before }}"
+          CURRENT="${{ github.sha }}"
 
-          if [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
+          echo "Before: $BEFORE"
+          echo "Current: $CURRENT"
+
+          if [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
             echo "Initial push detected."
 
             git ls-files \
@@ -48,8 +51,8 @@ jobs:
             git diff \
               --name-only \
               --diff-filter=AM \
-              "${{ github.event.before }}" \
-              "${{ github.sha }}" \
+              "$BEFORE" \
+              "$CURRENT" \
               | grep -E '^articles/.*\.md$' \
               > changed_articles.txt \
               || true
@@ -73,14 +76,11 @@ jobs:
           set -euo pipefail
 
           while IFS= read -r article; do
-            if [ -z "$article" ]; then
-              continue
-            fi
+            [ -z "$article" ] && continue
 
             echo "========================================"
             echo "Publishing: $article"
             echo "========================================"
 
             node scripts/publish-note.js "$article"
-
           done < changed_articles.txt
