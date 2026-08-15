@@ -1,0 +1,15 @@
+{
+  "name": "post",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate": "node scripts/generate-posts.js",
+    "qiita": "node scripts/publish-qiita.js",
+    "zenn": "node scripts/publish-zenn.js",
+    "note": "node scripts/publish-note.js"
+  },
+  "dependencies": {
+    "gray-matter": "^4.0.3"
+  }
+}
