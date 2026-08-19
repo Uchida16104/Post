@@ -90,6 +90,42 @@ const payload = {
   body: content.trim(),
 };
 
+console.log("========================================");
+console.log("Checking Qiita authentication...");
+console.log("========================================");
+
+const authResponse = await fetch(
+  "https://qiita.com/api/v2/authenticated_user",
+  {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${process.env.QIITA_TOKEN}`,
+      Accept: "application/json",
+    },
+  }
+);
+
+const authText = await authResponse.text();
+
+console.log(`Qiita auth HTTP status: ${authResponse.status}`);
+
+if (!authResponse.ok) {
+  console.error("Qiita authentication failed.");
+  console.error(authText);
+
+  throw new Error(
+    `Qiita authentication failed: HTTP ${authResponse.status}`
+  );
+}
+
+const authenticatedUser = JSON.parse(authText);
+
+console.log(
+  `Authenticated Qiita user: ${authenticatedUser.id}`
+);
+
+console.log("Qiita authentication succeeded.");
+
 console.log(`Publishing to Qiita: ${payload.title}`);
 
 /*
