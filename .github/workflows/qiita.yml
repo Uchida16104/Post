@@ -30,49 +30,63 @@ jobs:
       - name: Install dependencies
         run: npm install gray-matter
 
-      - name: Debug source version
+      - name: Debug source
         shell: bash
         run: |
           set -euo pipefail
 
-          echo "========================================"
-          echo "Git information"
-          echo "========================================"
-
-          echo "SHA:"
+          echo "Git SHA:"
           git rev-parse HEAD
 
-          echo
-          echo "Branch:"
-          git branch --show-current || true
+          echo "Recent commits:"
+          git log --oneline -5
 
-          echo
-          echo "publish-qiita.js:"
-          sed -n '1,240p' scripts/publish-qiita.js
+          echo "publish-qiita.js exists:"
+          test -f scripts/publish-qiita.js
 
-      - name: Find latest article
-        id: article
+      - name: Find changed articles
+        id: articles
         shell: bash
         run: |
           set -euo pipefail
 
-          ARTICLE=$(
-            git diff-tree \
-              --no-commit-id \
-              --name-only \
-              -r \
-              "$GITHUB_SHA" \
-              | grep '^articles/.*\.md$' \
-              | tail -n 1
-          )
+          BEFORE="${{ github.event.before }}"
+          CURRENT="${{ github.sha }}"
 
-          if [ -z "$ARTICLE" ]; then
-            echo "No article found."
+          echo "Before: $BEFORE"
+          echo "Current: $CURRENT"
+
+          if [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            echo "Initial push detected."
+
+            git ls-files \
+              | grep -E '^articles/.*\.md$' \
+              > changed_articles.txt \
+              || true
+          else
+            git diff \
+              --name-only \
+              --diff-filter=AM \
+              "$BEFORE" \
+              "$CURRENT" \
+              | grep -E '^articles/.*\.md$' \
+              > changed_articles.txt \
+              || true
+          fi
+
+          echo "Changed articles:"
+          cat changed_articles.txt || true
+
+          if [ ! -s changed_articles.txt ]; then
+            echo "No changed article found."
             exit 1
           fi
 
-          echo "Article: $ARTICLE"
-          echo "path=$ARTICLE" >> "$GITHUB_OUTPUT"
+          echo "Latest article:"
+          tail -n 1 changed_articles.txt
+
+          echo "path=$(tail -n 1 changed_articles.txt)" \
+            >> "$GITHUB_OUTPUT"
 
       - name: Publish to Qiita
         shell: bash
@@ -81,11 +95,10 @@ jobs:
         run: |
           set -euo pipefail
 
+          ARTICLE="${{ steps.articles.outputs.path }}"
+
           echo "========================================"
-          echo "Running publish-qiita.js"
+          echo "Publishing: $ARTICLE"
           echo "========================================"
 
-          node --version
-
-          node scripts/publish-qiita.js \
-            "${{ steps.article.outputs.path }}"
+          node scripts/publish-qiita.js "$ARTICLE"
