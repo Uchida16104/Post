@@ -33,16 +33,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-
           BEFORE="${{ github.event.before }}"
           CURRENT="${{ github.sha }}"
-
           echo "Before: $BEFORE"
           echo "Current: $CURRENT"
-
           if [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
             echo "Initial push detected."
-
             git ls-files \
               | grep -E '^articles/.*\.md$' \
               > changed_articles.txt \
@@ -57,32 +53,25 @@ jobs:
               > changed_articles.txt \
               || true
           fi
-
           echo "Changed article files:"
           cat changed_articles.txt || true
-
           if [ ! -s changed_articles.txt ]; then
             echo "No article found."
             exit 1
           fi
-
           echo "count=$(wc -l < changed_articles.txt)" >> "$GITHUB_OUTPUT"
-
       - name: Publish articles to Qiita
         shell: bash
         env:
           QIITA_TOKEN: ${{ secrets.QIITA_TOKEN }}
         run: |
           set -euo pipefail
-
           while IFS= read -r article; do
             if [ -z "$article" ]; then
               continue
             fi
-
             echo "========================================"
             echo "Publishing: $article"
             echo "========================================"
-
             node scripts/publish-qiita.js "$article"
           done < changed_articles.txt
