@@ -6,6 +6,8 @@ on:
       - main
     paths:
       - "articles/**/*.md"
+      - "scripts/publish-qiita.js"
+      - ".github/workflows/qiita.yml"
 
 permissions:
   contents: read
@@ -17,6 +19,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -26,22 +30,62 @@ jobs:
       - name: Install dependencies
         run: npm install gray-matter
 
+      - name: Debug source version
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "========================================"
+          echo "Git information"
+          echo "========================================"
+
+          echo "SHA:"
+          git rev-parse HEAD
+
+          echo
+          echo "Branch:"
+          git branch --show-current || true
+
+          echo
+          echo "publish-qiita.js:"
+          sed -n '1,240p' scripts/publish-qiita.js
+
       - name: Find latest article
         id: article
         shell: bash
         run: |
-          ARTICLE=$(git diff-tree --no-commit-id --name-only -r "$GITHUB_SHA" \
-            | grep '^articles/.*\.md$' \
-            | tail -n 1)
+          set -euo pipefail
+
+          ARTICLE=$(
+            git diff-tree \
+              --no-commit-id \
+              --name-only \
+              -r \
+              "$GITHUB_SHA" \
+              | grep '^articles/.*\.md$' \
+              | tail -n 1
+          )
 
           if [ -z "$ARTICLE" ]; then
             echo "No article found."
             exit 1
           fi
 
+          echo "Article: $ARTICLE"
           echo "path=$ARTICLE" >> "$GITHUB_OUTPUT"
 
       - name: Publish to Qiita
-        run: node scripts/publish-qiita.js "${{ steps.article.outputs.path }}"
+        shell: bash
         env:
           QIITA_TOKEN: ${{ secrets.QIITA_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          echo "========================================"
+          echo "Running publish-qiita.js"
+          echo "========================================"
+
+          node --version
+
+          node scripts/publish-qiita.js \
+            "${{ steps.article.outputs.path }}"
