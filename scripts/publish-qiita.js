@@ -14,12 +14,13 @@ if (!token) {
   throw new Error("QIITA_TOKEN is not set.");
 }
 
-/*
- * =========================================================
- * 1. Qiita認証確認
- * =========================================================
- */
+// =========================================================
+// 1. Qiita認証確認
+// =========================================================
+
+console.log("========================================");
 console.log("Checking Qiita authentication...");
+console.log("========================================");
 
 const authResponse = await fetch(
   "https://qiita.com/api/v2/authenticated_user",
@@ -34,9 +35,10 @@ const authResponse = await fetch(
 
 const authText = await authResponse.text();
 
+console.log(`Qiita auth HTTP status: ${authResponse.status}`);
+
 if (!authResponse.ok) {
   console.error("Qiita authentication failed.");
-  console.error(`HTTP ${authResponse.status}`);
   console.error(authText);
 
   throw new Error(
@@ -44,17 +46,26 @@ if (!authResponse.ok) {
   );
 }
 
-const authenticatedUser = JSON.parse(authText);
+let authenticatedUser;
+
+try {
+  authenticatedUser = JSON.parse(authText);
+} catch {
+  throw new Error(
+    "Qiita authentication returned invalid JSON."
+  );
+}
 
 console.log(
   `Authenticated Qiita user: ${authenticatedUser.id}`
 );
 
-/*
- * =========================================================
- * 2. Markdown読み込み
- * =========================================================
- */
+console.log("Qiita authentication succeeded.");
+
+// =========================================================
+// 2. Markdown読み込み
+// =========================================================
+
 const raw = fs.readFileSync(articleFile, "utf8");
 
 const { data, content } = matter(raw);
@@ -76,11 +87,10 @@ const tags = topics.map((name) => ({
   versions: [],
 }));
 
-/*
- * =========================================================
- * 3. 投稿データ
- * =========================================================
- */
+// =========================================================
+// 3. 投稿データ
+// =========================================================
+
 const payload = {
   title: String(data.title),
   tags,
@@ -91,48 +101,13 @@ const payload = {
 };
 
 console.log("========================================");
-console.log("Checking Qiita authentication...");
+console.log(`Publishing to Qiita: ${payload.title}`);
 console.log("========================================");
 
-const authResponse = await fetch(
-  "https://qiita.com/api/v2/authenticated_user",
-  {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${process.env.QIITA_TOKEN}`,
-      Accept: "application/json",
-    },
-  }
-);
+// =========================================================
+// 4. Qiita記事投稿
+// =========================================================
 
-const authText = await authResponse.text();
-
-console.log(`Qiita auth HTTP status: ${authResponse.status}`);
-
-if (!authResponse.ok) {
-  console.error("Qiita authentication failed.");
-  console.error(authText);
-
-  throw new Error(
-    `Qiita authentication failed: HTTP ${authResponse.status}`
-  );
-}
-
-const authenticatedUser = JSON.parse(authText);
-
-console.log(
-  `Authenticated Qiita user: ${authenticatedUser.id}`
-);
-
-console.log("Qiita authentication succeeded.");
-
-console.log(`Publishing to Qiita: ${payload.title}`);
-
-/*
- * =========================================================
- * 4. Qiita記事投稿
- * =========================================================
- */
 const response = await fetch(
   "https://qiita.com/api/v2/items",
   {
@@ -168,7 +143,10 @@ try {
   );
 }
 
+console.log("========================================");
 console.log("Qiita published successfully.");
+console.log("========================================");
+
 console.log(
   `https://qiita.com/${result.user?.id}/items/${result.id}`
 );
