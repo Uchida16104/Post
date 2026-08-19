@@ -17,8 +17,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -28,50 +26,22 @@ jobs:
       - name: Install dependencies
         run: npm install gray-matter
 
-      - name: Find changed articles
-        id: articles
+      - name: Find latest article
+        id: article
         shell: bash
         run: |
-          set -euo pipefail
-          BEFORE="${{ github.event.before }}"
-          CURRENT="${{ github.sha }}"
-          echo "Before: $BEFORE"
-          echo "Current: $CURRENT"
-          if [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
-            echo "Initial push detected."
-            git ls-files \
-              | grep -E '^articles/.*\.md$' \
-              > changed_articles.txt \
-              || true
-          else
-            git diff \
-              --name-only \
-              --diff-filter=AM \
-              "$BEFORE" \
-              "$CURRENT" \
-              | grep -E '^articles/.*\.md$' \
-              > changed_articles.txt \
-              || true
-          fi
-          echo "Changed article files:"
-          cat changed_articles.txt || true
-          if [ ! -s changed_articles.txt ]; then
+          ARTICLE=$(git diff-tree --no-commit-id --name-only -r "$GITHUB_SHA" \
+            | grep '^articles/.*\.md$' \
+            | tail -n 1)
+
+          if [ -z "$ARTICLE" ]; then
             echo "No article found."
             exit 1
           fi
-          echo "count=$(wc -l < changed_articles.txt)" >> "$GITHUB_OUTPUT"
-      - name: Publish articles to Qiita
-        shell: bash
+
+          echo "path=$ARTICLE" >> "$GITHUB_OUTPUT"
+
+      - name: Publish to Qiita
+        run: node scripts/publish-qiita.js "${{ steps.article.outputs.path }}"
         env:
           QIITA_TOKEN: ${{ secrets.QIITA_TOKEN }}
-        run: |
-          set -euo pipefail
-          while IFS= read -r article; do
-            if [ -z "$article" ]; then
-              continue
-            fi
-            echo "========================================"
-            echo "Publishing: $article"
-            echo "========================================"
-            node scripts/publish-qiita.js "$article"
-          done < changed_articles.txt
