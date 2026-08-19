@@ -2,6 +2,7 @@ import fs from "fs";
 import matter from "gray-matter";
 
 const articleFile = process.argv[2];
+const token = process.env.QIITA_TOKEN;
 
 if (!articleFile) {
   throw new Error(
@@ -9,17 +10,17 @@ if (!articleFile) {
   );
 }
 
-const token = process.env.QIITA_TOKEN;
-
 if (!token) {
   throw new Error("QIITA_TOKEN is not set.");
 }
 
-/**
- * ---------------------------------------------------------
+/*
+ * =========================================================
  * 1. Qiita認証確認
- * ---------------------------------------------------------
+ * =========================================================
  */
+console.log("Checking Qiita authentication...");
+
 const authResponse = await fetch(
   "https://qiita.com/api/v2/authenticated_user",
   {
@@ -49,10 +50,10 @@ console.log(
   `Authenticated Qiita user: ${authenticatedUser.id}`
 );
 
-/**
- * ---------------------------------------------------------
+/*
+ * =========================================================
  * 2. Markdown読み込み
- * ---------------------------------------------------------
+ * =========================================================
  */
 const raw = fs.readFileSync(articleFile, "utf8");
 
@@ -75,10 +76,10 @@ const tags = topics.map((name) => ({
   versions: [],
 }));
 
-/**
- * ---------------------------------------------------------
- * 3. Qiita記事データ
- * ---------------------------------------------------------
+/*
+ * =========================================================
+ * 3. 投稿データ
+ * =========================================================
  */
 const payload = {
   title: String(data.title),
@@ -89,14 +90,12 @@ const payload = {
   body: content.trim(),
 };
 
-console.log(
-  `Publishing to Qiita: ${payload.title}`
-);
+console.log(`Publishing to Qiita: ${payload.title}`);
 
-/**
- * ---------------------------------------------------------
- * 4. Qiitaへ投稿
- * ---------------------------------------------------------
+/*
+ * =========================================================
+ * 4. Qiita記事投稿
+ * =========================================================
  */
 const response = await fetch(
   "https://qiita.com/api/v2/items",
