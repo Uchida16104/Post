@@ -4,14 +4,58 @@ import matter from "gray-matter";
 const articleFile = process.argv[2];
 
 if (!articleFile) {
-  throw new Error("Usage: node scripts/publish-qiita.js articles/example.md");
+  throw new Error(
+    "Usage: node scripts/publish-qiita.js articles/example.md"
+  );
 }
 
-if (!process.env.QIITA_TOKEN) {
+const token = process.env.QIITA_TOKEN;
+
+if (!token) {
   throw new Error("QIITA_TOKEN is not set.");
 }
 
+/**
+ * ---------------------------------------------------------
+ * 1. Qiita認証確認
+ * ---------------------------------------------------------
+ */
+const authResponse = await fetch(
+  "https://qiita.com/api/v2/authenticated_user",
+  {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/json",
+    },
+  }
+);
+
+const authText = await authResponse.text();
+
+if (!authResponse.ok) {
+  console.error("Qiita authentication failed.");
+  console.error(`HTTP ${authResponse.status}`);
+  console.error(authText);
+
+  throw new Error(
+    `Qiita authentication failed: HTTP ${authResponse.status}`
+  );
+}
+
+const authenticatedUser = JSON.parse(authText);
+
+console.log(
+  `Authenticated Qiita user: ${authenticatedUser.id}`
+);
+
+/**
+ * ---------------------------------------------------------
+ * 2. Markdown読み込み
+ * ---------------------------------------------------------
+ */
 const raw = fs.readFileSync(articleFile, "utf8");
+
 const { data, content } = matter(raw);
 
 if (!data.title) {
@@ -31,6 +75,11 @@ const tags = topics.map((name) => ({
   versions: [],
 }));
 
+/**
+ * ---------------------------------------------------------
+ * 3. Qiita記事データ
+ * ---------------------------------------------------------
+ */
 const payload = {
   title: String(data.title),
   tags,
@@ -40,27 +89,51 @@ const payload = {
   body: content.trim(),
 };
 
-console.log(`Publishing to Qiita: ${payload.title}`);
+console.log(
+  `Publishing to Qiita: ${payload.title}`
+);
 
-const response = await fetch("https://qiita.com/api/v2/items", {
-  method: "POST",
-  headers: {
-    Authorization: `Bearer ${process.env.QIITA_TOKEN}`,
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify(payload),
-});
+/**
+ * ---------------------------------------------------------
+ * 4. Qiitaへ投稿
+ * ---------------------------------------------------------
+ */
+const response = await fetch(
+  "https://qiita.com/api/v2/items",
+  {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  }
+);
 
 const responseText = await response.text();
 
 if (!response.ok) {
-  console.error(responseText);
+  console.error("Qiita API error.");
+  console.error(`HTTP status: ${response.status}`);
+  console.error(`Response: ${responseText}`);
+
   throw new Error(
     `Qiita API failed: HTTP ${response.status}`
   );
 }
 
-const result = JSON.parse(responseText);
+let result;
+
+try {
+  result = JSON.parse(responseText);
+} catch {
+  throw new Error(
+    "Qiita API returned invalid JSON."
+  );
+}
 
 console.log("Qiita published successfully.");
-console.log(`https://qiita.com/${result.user?.id}/items/${result.id}`);
+console.log(
+  `https://qiita.com/${result.user?.id}/items/${result.id}`
+);
